@@ -2,14 +2,14 @@ import { Inject } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import sgMail, { ClientResponse } from '@sendgrid/mail';
 import { SendEmailParams } from '../interfaces/email.interface';
-import emailConfig from '../../config/email.config';
+import { emailConfig } from '../../config/email.config';
 
 export class SendgridSender {
   constructor(
     @Inject(emailConfig.KEY)
     private readonly emailConf: ConfigType<typeof emailConfig>,
   ) {
-    sgMail.setApiKey(emailConf.sendgrid.apiKey);
+    sgMail.setApiKey(emailConf.sendgridApiKey);
   }
 
   async sendHTML(
@@ -17,7 +17,7 @@ export class SendgridSender {
     html: string,
     options: Pick<SendEmailParams<string>, 'from' | 'subject'>,
   ): Promise<ClientResponse> {
-    options.from = options.from || this.emailConf.from;
+    options.from = options.from || this.emailConf.emailFrom;
     options.subject = options.subject || '';
     return sgMail
       .send({
@@ -35,7 +35,7 @@ export class SendgridSender {
     locals: Record<string, any>,
     options: Pick<SendEmailParams<string>, 'from' | 'subject'>,
   ): Promise<ClientResponse> {
-    options.from = options.from || this.emailConf.from;
+    options.from = options.from || this.emailConf.emailFrom;
     options.subject = options.subject || '';
     return sgMail
       .send({
