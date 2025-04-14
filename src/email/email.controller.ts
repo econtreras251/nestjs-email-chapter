@@ -1,12 +1,13 @@
-import { Controller, Post, Body } from '@nestjs/common';
-import { MailingProviderService, SendEmailParams } from './interfaces/email.interface';
+import { Controller, Post, Body } from "@nestjs/common";
+import { WelcomeEmailParams } from "./services/welcome.sender";
+import { WelcomeSender } from "./services/welcome.sender";
 
-@Controller('email')
+@Controller("email")
 export class EmailController {
-  constructor(private readonly mailingService: MailingProviderService) {}
+  constructor(private readonly welcomeSender: WelcomeSender) {}
 
-  @Post('send')
-  async sendEmail(@Body() emailData: SendEmailParams<string>) {
-    return this.mailingService.sendEmail(emailData);
+  @Post("send")
+  async sendEmail(@Body() emailData: WelcomeEmailParams) {
+    return this.welcomeSender.sendWelcomeEmail(emailData);
   }
 }

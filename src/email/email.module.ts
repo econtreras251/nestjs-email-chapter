@@ -1,16 +1,16 @@
-import { Module } from '@nestjs/common';
-import { EmailController } from './email.controller';
-import { MailingProviderService } from './interfaces/email.interface';
-import { SendgridAdapter } from './adapters/sendgrid.adapter';
+import { Module } from "@nestjs/common";
+import { SendgridAdapter } from "./adapters/sendgrid.adapter";
+import { WelcomeSender } from "./services/welcome.sender";
+import { MailingProviderService } from "./interfaces/mailing.provider";
 
 @Module({
-  controllers: [EmailController],
   providers: [
     {
       provide: MailingProviderService,
       useClass: SendgridAdapter,
     },
+    WelcomeSender,
   ],
-  exports: [MailingProviderService],
+  exports: [WelcomeSender],
 })
 export class EmailModule {}
