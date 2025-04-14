@@ -1,6 +1,7 @@
 import { Inject } from "@nestjs/common";
 import { ConfigType } from "@nestjs/config";
-import sgMail, { ClientResponse } from "@sendgrid/mail";
+import * as sgMail from "@sendgrid/mail";
+import { ClientResponse } from "@sendgrid/mail";
 import { Injectable } from "@nestjs/common";
 import { emailConfig } from "../../config/email.config";
 import { SendEmailParams } from "../interfaces/email.interface";
