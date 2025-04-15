@@ -6,7 +6,7 @@ import { EmailAbstractModule } from "./email/abstract/email-abstract.module";
 import { emailConfig } from "./config/email.config";
 import { ConfigType } from "@nestjs/config";
 import { SendgridAdapterModule } from "./email/sendgrid-adapter/sendgrid-adapter.module";
-
+import { WelcomeModule } from "./welcome/welcome.module";
 @Module({
   imports: [
     ConfigModule,
@@ -21,6 +21,7 @@ import { SendgridAdapterModule } from "./email/sendgrid-adapter/sendgrid-adapter
       useDefaultController: true,
       isGlobal: true,
     }),
+    WelcomeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
