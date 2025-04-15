@@ -7,6 +7,8 @@ export interface ExampleEmailParams {
   email: string;
 }
 
+// TODO: remove this sender and make it a separate module
+
 @Injectable()
 export class EmailSender {
   constructor(private readonly emailService: EmailService) {}
