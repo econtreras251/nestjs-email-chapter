@@ -1,13 +1,31 @@
 import { Injectable } from "@nestjs/common";
-import { WelcomeSender } from "./welcome.sender";
-import { WelcomeEmailParams } from "./welcome.sender";
+import { EmailService } from "../email/abstract/email.service";
+import { TEMPLATE_FILENAMES, TEMPLATES } from "src/email/templates";
+import { SendEmailParams } from "src/email/abstract/email.interface";
+
+interface WelcomeEmailParams {
+  name: string;
+  email: string;
+}
 
 @Injectable()
 export class WelcomeService {
-  constructor(private readonly welcomeSender: WelcomeSender) {}
+  constructor(private readonly emailService: EmailService) {}
 
-  async sendWelcomeEmail(params: WelcomeEmailParams) {
-    console.log("Sending welcome email to", params);
-    return this.welcomeSender.sendWelcomeEmail(params);
+  async sendWelcomeEmail(serviceParams: WelcomeEmailParams) {
+    console.log("Sending welcome email to", serviceParams);
+
+    const emailParams: SendEmailParams<typeof TEMPLATES.WELCOME> = {
+      template: {
+        name: TEMPLATES.WELCOME,
+        params: {
+          name: serviceParams.name,
+        },
+      },
+      subject: TEMPLATE_FILENAMES[TEMPLATES.WELCOME],
+      to: serviceParams.email,
+    };
+
+    return this.emailService.sendEmail(emailParams);
   }
 }

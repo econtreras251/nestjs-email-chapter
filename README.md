@@ -92,6 +92,9 @@ export class AwsSesAdapter extends MailingProviderService {
 }
 ```
 
+For more detailed information about providers, see [Providers Documentation](docs/providers.MD).
+For template management details, see [Template Documentation](docs/template.MD).
+
 ### Benefits
 
 - **Loose Coupling**: Business logic is decoupled from specific email provider implementations

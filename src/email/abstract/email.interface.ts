@@ -1,13 +1,16 @@
-export type Template = string;
+import { Template, TEMPLATES } from "../templates";
+import { VerificationParams } from "../templates/verification";
+import { WelcomeParams } from "../templates/welcome";
 
 export interface TemplateParams {
-  [key: string]: any;
+  [TEMPLATES.WELCOME]: WelcomeParams;
+  [TEMPLATES.VERIFICATION]: VerificationParams;
 }
 
-export interface SendEmailParams<T extends Template> {
+export interface SendEmailParams<T extends Template = Template> {
   template: {
     name: T;
-    params: TemplateParams;
+    params: TemplateParams[T];
   };
   to: string;
   from?: string;

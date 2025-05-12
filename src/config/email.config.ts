@@ -4,7 +4,7 @@ import { EmailConfig } from "./validation/email-config.class";
 
 export const emailConfig = registerAs("email", () => {
   const value = EmailConfig.fromPlain({
-    emailFrom: process.env.EMAIL_FROM,
+    emailFrom: process.env.FROM_EMAIL,
     sendgridApiKey: process.env.SENDGRID_API_KEY,
   });
   validateSync(value);

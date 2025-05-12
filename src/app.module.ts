@@ -7,6 +7,7 @@ import { emailConfig } from "./config/email.config";
 import { ConfigType } from "@nestjs/config";
 import { SendgridAdapterModule } from "./email/sendgrid-adapter/sendgrid-adapter.module";
 import { WelcomeModule } from "./welcome/welcome.module";
+
 @Module({
   imports: [
     ConfigModule,
@@ -14,11 +15,10 @@ import { WelcomeModule } from "./welcome/welcome.module";
       adapter: SendgridAdapterModule.registerAsync({
         inject: [emailConfig.KEY],
         useFactory: (email: ConfigType<typeof emailConfig>) => ({
-          apiKey: email.sendgridApiKey,
-          fromEmail: email.emailFrom,
+          sendgridApiKey: email.sendgridApiKey,
+          emailFrom: email.emailFrom,
         }),
       }),
-      useDefaultController: true,
       isGlobal: true,
     }),
     WelcomeModule,
