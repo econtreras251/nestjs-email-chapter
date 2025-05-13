@@ -1,12 +1,12 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { EmailService } from "../abstract/email.service";
-import { SendEmailParams, TemplateParams } from "../abstract/email.interface";
+import { SendEmailParams } from "../abstract/email.interface";
 import { SENDGRID_ADAPTER_PROVIDER_CONFIG } from "./sendgrid-adapter-config-provider.const";
 import { SendgridAdapterConfig } from "./sendgrid-adapter-config.interface";
 import * as sgMail from "@sendgrid/mail";
 import { ClientResponse } from "@sendgrid/mail";
-import { Template, TEMPLATE_PATHS } from "../templates";
-import * as pug from "pug";
+import { Template } from "../../templates";
+import { EmailTemplateService } from "../abstract/templates.abstract";
 
 @Injectable()
 export class SendgridAdapterService extends EmailService {
@@ -15,8 +15,9 @@ export class SendgridAdapterService extends EmailService {
   constructor(
     @Inject(SENDGRID_ADAPTER_PROVIDER_CONFIG)
     config: SendgridAdapterConfig,
+    templateService: EmailTemplateService,
   ) {
-    super();
+    super(templateService);
     this.emailFrom = config.emailFrom;
     sgMail.setApiKey(config.sendgridApiKey);
   }
@@ -61,10 +62,8 @@ export class SendgridAdapterService extends EmailService {
     params: SendEmailParams<T>,
   ): Promise<ClientResponse> {
     try {
-      const html = this.renderTemplate(
-        params.template.name,
-        params.template.params,
-      );
+      const html = this.render(params.template.name, params.template.params);
+      console.log("html", html);
       return this.sendHTML(params.to, html, {
         from: params.from,
         subject: params.subject,
@@ -73,14 +72,5 @@ export class SendgridAdapterService extends EmailService {
       console.error("Failed to send email:", error);
       throw error;
     }
-  }
-
-  private renderTemplate(
-    template: Template,
-    params: TemplateParams[Template],
-  ): string {
-    const templatePath = TEMPLATE_PATHS[template];
-    const html = pug.renderFile(templatePath, params);
-    return html;
   }
 }

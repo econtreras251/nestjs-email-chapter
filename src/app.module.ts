@@ -7,6 +7,7 @@ import { emailConfig } from "./config/email.config";
 import { ConfigType } from "@nestjs/config";
 import { SendgridAdapterModule } from "./email/sendgrid-adapter/sendgrid-adapter.module";
 import { WelcomeModule } from "./welcome/welcome.module";
+import { PugTemplateAdapterModule } from "./email/pug-template/pug-template-adapter.module";
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { WelcomeModule } from "./welcome/welcome.module";
           emailFrom: email.emailFrom,
         }),
       }),
+      templateService: PugTemplateAdapterModule.register(),
       isGlobal: true,
     }),
     WelcomeModule,

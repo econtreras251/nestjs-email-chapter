@@ -1,7 +1,8 @@
-import { Template, TEMPLATES } from "../templates";
-import { VerificationParams } from "../templates/verification";
-import { WelcomeParams } from "../templates/welcome";
+import { Template, TEMPLATES } from "../../templates";
+import { VerificationParams } from "../../templates/verification";
+import { WelcomeParams } from "../../templates/welcome";
 
+// TODO: move to templates
 export interface TemplateParams {
   [TEMPLATES.WELCOME]: WelcomeParams;
   [TEMPLATES.VERIFICATION]: VerificationParams;
