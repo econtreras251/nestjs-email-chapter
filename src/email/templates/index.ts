@@ -8,8 +8,8 @@ export const TEMPLATES = {
 } as const;
 
 export const TEMPLATE_PATHS = {
-  [TEMPLATES.WELCOME]: "templates/welcome.pug",
-  [TEMPLATES.VERIFICATION]: "templates/verification.pug",
+  [TEMPLATES.WELCOME]: "src/email/templates/welcome.pug",
+  [TEMPLATES.VERIFICATION]: "src/email/templates/verification.pug",
 } as const;
 
 export const TEMPLATE_FILENAMES = {

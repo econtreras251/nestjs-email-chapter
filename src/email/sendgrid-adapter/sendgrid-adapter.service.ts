@@ -1,11 +1,13 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { EmailService } from "../abstract/email.service";
-import { SendEmailParams } from "../abstract/email.interface";
+import { SendEmailParams, TemplateParams } from "../abstract/email.interface";
 import { SENDGRID_ADAPTER_PROVIDER_CONFIG } from "./sendgrid-adapter-config-provider.const";
 import { SendgridAdapterConfig } from "./sendgrid-adapter-config.interface";
 import * as sgMail from "@sendgrid/mail";
 import { ClientResponse } from "@sendgrid/mail";
-import { Template } from "../templates";
+import { Template, TEMPLATE_PATHS } from "../templates";
+import * as pug from "pug";
+
 @Injectable()
 export class SendgridAdapterService extends EmailService {
   private emailFrom: string;
@@ -59,7 +61,11 @@ export class SendgridAdapterService extends EmailService {
     params: SendEmailParams<T>,
   ): Promise<ClientResponse> {
     try {
-      return this.sendHTML(params.to, params.template.name, {
+      const html = this.renderTemplate(
+        params.template.name,
+        params.template.params,
+      );
+      return this.sendHTML(params.to, html, {
         from: params.from,
         subject: params.subject,
       });
@@ -67,5 +73,14 @@ export class SendgridAdapterService extends EmailService {
       console.error("Failed to send email:", error);
       throw error;
     }
+  }
+
+  private renderTemplate(
+    template: Template,
+    params: TemplateParams[Template],
+  ): string {
+    const templatePath = TEMPLATE_PATHS[template];
+    const html = pug.renderFile(templatePath, params);
+    return html;
   }
 }
