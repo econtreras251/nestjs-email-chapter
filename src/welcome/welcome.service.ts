@@ -1,7 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { EmailService } from "../email/abstract/email.service";
 import { TEMPLATE_FILENAMES, TEMPLATES } from "src/templates";
-import { SendEmailParams } from "src/email/abstract/email.interface";
+import { SendEmailParams, ValueOf } from "src/email/abstract/email.interface";
+import { TemplateParamsMap } from "../templates/index";
 
 interface WelcomeEmailParams {
   name: string;
@@ -13,7 +14,11 @@ export class WelcomeService {
   constructor(private readonly emailService: EmailService) {}
 
   async sendWelcomeEmail(serviceParams: WelcomeEmailParams) {
-    const emailParams: SendEmailParams<typeof TEMPLATES.WELCOME> = {
+    const emailParams: SendEmailParams<
+      typeof TEMPLATES,
+      ValueOf<typeof TEMPLATES>,
+      TemplateParamsMap
+    > = {
       template: {
         name: TEMPLATES.WELCOME,
         params: {

@@ -2,20 +2,24 @@ import { EmailTemplateService } from "./templates.abstract";
 import {
   MailingResponse,
   SendEmailParams,
-  TemplateParams,
+  TemplateParamsMap,
+  ValueOf,
 } from "./email.interface";
-import { Template } from "../../templates";
 
 export abstract class EmailService {
   constructor(protected templateService?: EmailTemplateService) {}
 
-  protected render<T extends Template>(
-    template: T,
-    context: TemplateParams[T],
-  ): string {
+  protected render<
+    TEMPLATES extends Record<string, string>,
+    T extends ValueOf<TEMPLATES>,
+  >(template: T, context: TemplateParamsMap<TEMPLATES>): string {
     if (!this.templateService) throw new Error("No template service provided");
-    return this.templateService.compile(template, context);
+    return this.templateService.compile(String(template), context);
   }
 
-  abstract sendEmail(params: SendEmailParams): Promise<MailingResponse>;
+  abstract sendEmail<
+    TEMPLATES extends Record<string, string>,
+    T extends ValueOf<TEMPLATES>,
+    P extends TemplateParamsMap<TEMPLATES>,
+  >(params: SendEmailParams<TEMPLATES, T, P>): Promise<MailingResponse>;
 }

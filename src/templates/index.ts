@@ -1,6 +1,7 @@
-import { ValueOf } from "type-fest";
+import { VerificationParams } from "./verification.interface";
+import { WelcomeParams } from "./welcome.interface";
 
-export type Template = ValueOf<typeof TEMPLATES>;
+export type Template = (typeof TEMPLATES)[keyof typeof TEMPLATES];
 
 export const TEMPLATES = {
   WELCOME: "WELCOME",
@@ -16,3 +17,8 @@ export const TEMPLATE_FILENAMES = {
   [TEMPLATES.WELCOME]: "Welcome aboard",
   [TEMPLATES.VERIFICATION]: "Verify your email",
 } as const;
+
+export interface TemplateParamsMap {
+  [TEMPLATES.WELCOME]: WelcomeParams;
+  [TEMPLATES.VERIFICATION]: VerificationParams;
+}
