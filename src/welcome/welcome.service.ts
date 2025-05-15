@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { EmailService } from "../email/abstract/email.service";
-import { TEMPLATES } from "src/templates";
-import { buildEmailParams } from "src/email/utils/build-email.helper";
+import { TEMPLATE_SUBJECTS, TEMPLATES } from "src/templates";
+import { createEmail } from "src/email/utils/create-email.helper";
 
 interface WelcomeEmailParams {
   name: string;
@@ -13,12 +13,16 @@ export class WelcomeService {
   constructor(private readonly emailService: EmailService) {}
 
   async sendWelcomeEmail(serviceParams: WelcomeEmailParams) {
-    const emailParams = buildEmailParams(
+    const emailParams = createEmail(
       TEMPLATES.WELCOME,
       {
         name: serviceParams.name,
       },
-      { to: serviceParams.email },
+      {
+        to: serviceParams.email,
+        from: "unrankedhappy@gmail.com",
+        subject: TEMPLATE_SUBJECTS[TEMPLATES.WELCOME],
+      },
     );
 
     return this.emailService.sendEmail(emailParams);

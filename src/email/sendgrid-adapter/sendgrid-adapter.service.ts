@@ -60,7 +60,6 @@ export class SendgridAdapterService extends EmailService {
   async sendEmail(params: SendEmailParams): Promise<ClientResponse> {
     try {
       const html = this.render(params.template.name, params.template.params);
-      console.log("html", html);
       return this.sendHTML(params.to, html, {
         from: params.from,
         subject: params.subject,

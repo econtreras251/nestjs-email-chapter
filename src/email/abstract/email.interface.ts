@@ -4,7 +4,7 @@
  */
 export interface BaseEmailParams {
   to: string;
-  from?: string;
+  from: string;
   subject?: string;
 }
 

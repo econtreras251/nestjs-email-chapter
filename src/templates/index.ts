@@ -10,11 +10,11 @@ export const TEMPLATES = {
 } as const;
 
 export const TEMPLATE_PATHS = {
-  [TEMPLATES.WELCOME]: "src/email/templates/welcome.pug",
-  [TEMPLATES.VERIFICATION]: "src/email/templates/verification.pug",
+  [TEMPLATES.WELCOME]: "templates/welcome.pug",
+  [TEMPLATES.VERIFICATION]: "src/templates/verification.pug",
 } as const;
 
-export const TEMPLATE_FILENAMES = {
+export const TEMPLATE_SUBJECTS = {
   [TEMPLATES.WELCOME]: "Welcome aboard",
   [TEMPLATES.VERIFICATION]: "Verify your email",
 } as const;

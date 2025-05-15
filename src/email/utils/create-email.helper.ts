@@ -12,7 +12,7 @@ import { emailTypesConfig } from "../../templates/index";
  *
  * @example
  * ```typescript
- * const emailParams = buildEmailParams(
+ * const emailParams = createEmail(
  *   'WELCOME',
  *   { name: "John" },
  *   {
@@ -22,7 +22,7 @@ import { emailTypesConfig } from "../../templates/index";
  * );
  * ```
  */
-export function buildEmailParams<
+export function createEmail<
   T extends keyof (typeof emailTypesConfig)["templates"],
 >(
   template: T,
