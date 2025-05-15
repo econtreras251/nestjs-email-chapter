@@ -1,3 +1,4 @@
+import { EmailConfig } from "src/email/types/email-config.types";
 import { VerificationParams } from "./verification.interface";
 import { WelcomeParams } from "./welcome.interface";
 
@@ -22,3 +23,14 @@ export interface TemplateParamsMap {
   [TEMPLATES.WELCOME]: WelcomeParams;
   [TEMPLATES.VERIFICATION]: VerificationParams;
 }
+
+export const emailTypesConfig: EmailConfig<
+  typeof TEMPLATES,
+  TemplateParamsMap
+> = {
+  templates: TEMPLATES,
+  params: {
+    [TEMPLATES.WELCOME]: {} as WelcomeParams,
+    [TEMPLATES.VERIFICATION]: {} as VerificationParams,
+  },
+};

@@ -1,4 +1,4 @@
-import { SendEmailParams } from '../abstract/email.interface';
+import { SendEmailParams } from "../abstract/email.interface";
 
 /**
  * Type helper to create a type-safe email configuration.
@@ -7,22 +7,30 @@ import { SendEmailParams } from '../abstract/email.interface';
  */
 export type EmailConfig<
   TEMPLATES extends Record<string, string>,
-  PARAMS extends Record<TEMPLATES[keyof TEMPLATES], Record<string, any>>
+  PARAMS extends Record<TEMPLATES[keyof TEMPLATES], Record<string, any>>,
 > = {
   templates: TEMPLATES;
   params: PARAMS;
 };
 
 /**
- * Type helper to create a type-safe email params for a specific configuration.
+ * Type helper to create a type-safe email params for a specific template.
+ * @typeParam CONFIG - The email configuration type
+ * @typeParam T - The specific template name from the config
+ */
+export type TemplateEmailParams<
+  CONFIG extends EmailConfig<any, any>,
+  T extends CONFIG["templates"][keyof CONFIG["templates"]],
+> = Omit<SendEmailParams, "template"> & {
+  template: {
+    name: T;
+    params: CONFIG["params"][T];
+  };
+};
+
+/**
+ * Type helper to create a type-safe email params for any template in the configuration.
  * @typeParam CONFIG - The email configuration type
  */
-export type ConfiguredEmailParams<CONFIG extends EmailConfig<any, any>> = Omit<
-  SendEmailParams,
-  'template'
-> & {
-  template: {
-    name: CONFIG['templates'][keyof CONFIG['templates']];
-    params: CONFIG['params'][CONFIG['templates'][keyof CONFIG['templates']]];
-  };
-}; 
+export type ConfiguredEmailParams<CONFIG extends EmailConfig<any, any>> =
+  TemplateEmailParams<CONFIG, CONFIG["templates"][keyof CONFIG["templates"]]>;

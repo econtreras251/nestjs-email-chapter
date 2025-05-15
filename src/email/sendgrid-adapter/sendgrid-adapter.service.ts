@@ -1,10 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { EmailService } from "../abstract/email.service";
-import {
-  SendEmailParams,
-  TemplateParamsMap,
-  ValueOf,
-} from "../abstract/email.interface";
+import { SendEmailParams } from "../abstract/email.interface";
 import { SENDGRID_ADAPTER_PROVIDER_CONFIG } from "./sendgrid-adapter-config-provider.const";
 import { SendgridAdapterConfig } from "./sendgrid-adapter-config.interface";
 import * as sgMail from "@sendgrid/mail";
@@ -28,14 +24,7 @@ export class SendgridAdapterService extends EmailService {
   private async sendHTML(
     to: string,
     html: string,
-    options: Pick<
-      SendEmailParams<
-        Record<string, string>,
-        ValueOf<Record<string, string>>,
-        TemplateParamsMap<Record<string, string>>
-      >,
-      "from" | "subject"
-    >,
+    options: Pick<SendEmailParams, "from" | "subject">,
   ): Promise<ClientResponse> {
     options.from = options.from || this.emailFrom;
     options.subject = options.subject || "";
@@ -53,14 +42,7 @@ export class SendgridAdapterService extends EmailService {
     to: string,
     templateId: string,
     locals: Record<string, any>,
-    options: Pick<
-      SendEmailParams<
-        Record<string, string>,
-        ValueOf<Record<string, string>>,
-        TemplateParamsMap<Record<string, string>>
-      >,
-      "from" | "subject"
-    >,
+    options: Pick<SendEmailParams, "from" | "subject">,
   ): Promise<ClientResponse> {
     options.from = options.from || this.emailFrom;
     options.subject = options.subject || "";
@@ -75,11 +57,7 @@ export class SendgridAdapterService extends EmailService {
       .then((resp) => resp[0]);
   }
 
-  async sendEmail<
-    TEMPLATES extends Record<string, string>,
-    T extends ValueOf<TEMPLATES>,
-    P extends TemplateParamsMap<TEMPLATES>,
-  >(params: SendEmailParams<TEMPLATES, T, P>): Promise<ClientResponse> {
+  async sendEmail(params: SendEmailParams): Promise<ClientResponse> {
     try {
       const html = this.render(params.template.name, params.template.params);
       console.log("html", html);
