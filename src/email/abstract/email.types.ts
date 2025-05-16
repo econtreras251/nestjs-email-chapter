@@ -15,22 +15,22 @@ export type EmailConfig<
 
 /**
  * Type helper to create a type-safe email params for a specific template.
- * @typeParam CONFIG - The email configuration type
+ * @typeParam C - The email configuration type
  * @typeParam T - The specific template name from the config
  */
 export type TemplateEmailParams<
-  CONFIG extends EmailConfig<any, any>,
-  T extends CONFIG["templates"][keyof CONFIG["templates"]],
+  C extends EmailConfig<any, any>,
+  T extends C["templates"][keyof C["templates"]],
 > = Omit<SendEmailParams, "template"> & {
   template: {
     name: T;
-    params: CONFIG["params"][T];
+    params: C["params"][T];
   };
 };
 
 /**
  * Type helper to create a type-safe email params for any template in the configuration.
- * @typeParam CONFIG - The email configuration type
+ * @typeParam C - The email configuration type
  */
-export type ConfiguredEmailParams<CONFIG extends EmailConfig<any, any>> =
-  TemplateEmailParams<CONFIG, CONFIG["templates"][keyof CONFIG["templates"]]>;
+export type ConfiguredEmailParams<C extends EmailConfig<any, any>> =
+  TemplateEmailParams<C, C["templates"][keyof C["templates"]]>;

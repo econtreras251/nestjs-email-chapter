@@ -3,6 +3,7 @@ import { EmailTemplateService } from "../abstract/templates.abstract";
 import { Injectable } from "@nestjs/common";
 import { TEMPLATE_PATHS } from "../../templates/index";
 
+// TODO: add path to config and use it here for the template path
 @Injectable()
 export class PugTemplateAdapter extends EmailTemplateService {
   constructor() {

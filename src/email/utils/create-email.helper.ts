@@ -1,5 +1,7 @@
-import { TemplateEmailParams } from "../types/email-config.types";
 import { emailTypesConfig } from "../../templates/index";
+import { TemplateEmailParams } from "../abstract/email.types";
+
+// TODO: think about how to order this helper functions in a better way
 
 /**
  * Helper function to build type-safe email parameters using the configured email types.

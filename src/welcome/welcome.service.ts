@@ -8,6 +8,12 @@ interface WelcomeEmailParams {
   email: string;
 }
 
+interface ConfirmationEmailParams {
+  email: string;
+  name: string;
+  verificationUrl: string;
+}
+
 @Injectable()
 export class WelcomeService {
   constructor(private readonly emailService: EmailService) {}
@@ -20,11 +26,25 @@ export class WelcomeService {
       },
       {
         to: serviceParams.email,
-        from: "unrankedhappy@gmail.com",
         subject: TEMPLATE_SUBJECTS[TEMPLATES.WELCOME],
       },
     );
 
     return this.emailService.sendEmail(emailParams);
+  }
+
+  async sendTemplateEmail(
+    serviceParams: ConfirmationEmailParams,
+    templateId: string,
+  ) {
+    return this.emailService.sendEmail({
+      to: serviceParams.email,
+      subject: TEMPLATE_SUBJECTS[TEMPLATES.VERIFICATION],
+      template: {
+        name: "template",
+        templateId,
+        params: serviceParams,
+      },
+    });
   }
 }
