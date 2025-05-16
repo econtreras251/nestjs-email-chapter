@@ -1,12 +1,14 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { EmailService } from "../abstract/email.service";
-import { SendEmailParams, TemplateParams } from "../abstract/email.interface";
+import {
+  SendEmailMultipleParams,
+  SendEmailParams,
+} from "../abstract/email.interface";
 import { SENDGRID_ADAPTER_PROVIDER_CONFIG } from "./sendgrid-adapter-config-provider.const";
 import { SendgridAdapterConfig } from "./sendgrid-adapter-config.interface";
 import * as sgMail from "@sendgrid/mail";
 import { ClientResponse } from "@sendgrid/mail";
-import { Template, TEMPLATE_PATHS } from "../templates";
-import * as pug from "pug";
+import { EmailTemplateService } from "../abstract/templates.abstract";
 
 @Injectable()
 export class SendgridAdapterService extends EmailService {
@@ -15,8 +17,9 @@ export class SendgridAdapterService extends EmailService {
   constructor(
     @Inject(SENDGRID_ADAPTER_PROVIDER_CONFIG)
     config: SendgridAdapterConfig,
+    templateService: EmailTemplateService,
   ) {
-    super();
+    super(templateService);
     this.emailFrom = config.emailFrom;
     sgMail.setApiKey(config.sendgridApiKey);
   }
@@ -24,7 +27,7 @@ export class SendgridAdapterService extends EmailService {
   private async sendHTML(
     to: string,
     html: string,
-    options: Pick<SendEmailParams<Template>, "from" | "subject">,
+    options: Pick<SendEmailParams, "from" | "subject">,
   ): Promise<ClientResponse> {
     options.from = options.from || this.emailFrom;
     options.subject = options.subject || "";
@@ -42,7 +45,7 @@ export class SendgridAdapterService extends EmailService {
     to: string,
     templateId: string,
     locals: Record<string, any>,
-    options: Pick<SendEmailParams<Template>, "from" | "subject">,
+    options: Pick<SendEmailParams, "from" | "subject">,
   ): Promise<ClientResponse> {
     options.from = options.from || this.emailFrom;
     options.subject = options.subject || "";
@@ -57,30 +60,91 @@ export class SendgridAdapterService extends EmailService {
       .then((resp) => resp[0]);
   }
 
-  async sendEmail<T extends Template>(
-    params: SendEmailParams<T>,
+  private async sendMultipleTemplate(
+    to: string[],
+    templateId: string,
+    locals: Record<string, any>,
+    options: Pick<SendEmailParams, "from" | "subject">,
   ): Promise<ClientResponse> {
+    options.from = options.from || this.emailFrom;
+    options.subject = options.subject || "";
+    return sgMail
+      .sendMultiple({
+        to,
+        from: options.from,
+        subject: options.subject,
+        templateId,
+        dynamicTemplateData: locals,
+      })
+      .then((resp) => resp[0]);
+  }
+
+  private async sendMultipleHTML(
+    to: string[],
+    html: string,
+    options: Pick<SendEmailParams, "from" | "subject">,
+  ): Promise<ClientResponse> {
+    options.from = options.from || this.emailFrom;
+    options.subject = options.subject || "";
+    return sgMail
+      .sendMultiple({
+        to,
+        from: options.from,
+        subject: options.subject,
+        html,
+      })
+      .then((resp) => resp[0]);
+  }
+
+  async sendEmail(params: SendEmailParams): Promise<ClientResponse> {
     try {
-      const html = this.renderTemplate(
-        params.template.name,
-        params.template.params,
-      );
+      if (params.template.templateId) {
+        return this.sendTemplate(
+          params.to,
+          params.template.templateId,
+          params.template.params,
+          {
+            from: params.from,
+            subject: params.subject,
+          },
+        );
+      }
+      const html = this.render(params.template.name, params.template.params);
       return this.sendHTML(params.to, html, {
         from: params.from,
         subject: params.subject,
       });
     } catch (error) {
-      console.error("Failed to send email:", error);
+      // TODO: Integrate log provider
+      console.log(`Failed to send email:`, `Error: ${error}`);
       throw error;
     }
   }
 
-  private renderTemplate(
-    template: Template,
-    params: TemplateParams[Template],
-  ): string {
-    const templatePath = TEMPLATE_PATHS[template];
-    const html = pug.renderFile(templatePath, params);
-    return html;
+  async sendMultipleEmails(
+    params: SendEmailMultipleParams,
+  ): Promise<ClientResponse> {
+    try {
+      if (params.template.templateId) {
+        return this.sendMultipleTemplate(
+          params.to,
+          params.template.templateId,
+          params.template.params,
+          {
+            from: params.from,
+            subject: params.subject,
+          },
+        );
+      }
+      const html = this.render(params.template.name, params.template.params);
+      return this.sendMultipleHTML(params.to, html, {
+        from: params.from,
+        subject: params.subject,
+      });
+    } catch (error) {
+      // TODO: Integrate log provider
+      console.log(`Failed to send multiple emails:`, `Error: ${error}`);
+      throw error;
+    }
   }
 }

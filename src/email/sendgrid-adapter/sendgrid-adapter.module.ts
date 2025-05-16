@@ -19,7 +19,10 @@ export class SendgridAdapterModule {
           provide: SENDGRID_ADAPTER_PROVIDER_CONFIG,
           useValue: config,
         },
-        { provide: EMAIL_PROVIDER, useClass: SendgridAdapterService },
+        {
+          provide: EMAIL_PROVIDER,
+          useClass: SendgridAdapterService,
+        },
       ],
       exports: [EMAIL_PROVIDER, SENDGRID_ADAPTER_PROVIDER_CONFIG],
     };
@@ -41,7 +44,10 @@ export class SendgridAdapterModule {
           useFactory: options.useFactory,
           inject: options.inject || [],
         },
-        { provide: EMAIL_PROVIDER, useClass: SendgridAdapterService },
+        {
+          provide: EMAIL_PROVIDER,
+          useClass: SendgridAdapterService,
+        },
       ],
       exports: [EMAIL_PROVIDER, SENDGRID_ADAPTER_PROVIDER_CONFIG],
     };
