@@ -7,12 +7,13 @@ import { emailConfig } from "./config/email.config";
 import { ConfigType } from "@nestjs/config";
 import { SendgridAdapterModule } from "./email/sendgrid-adapter/sendgrid-adapter.module";
 import { WelcomeModule } from "./welcome/welcome.module";
-import { PugTemplateAdapterModule } from "./email/pug-template/pug-template-adapter.module";
+import { PugCompilerModule } from "./templates/pug-compiler/pug-compiler.module";
 
 @Module({
   imports: [
     ConfigModule,
     EmailAbstractModule.forRoot({
+      templateService: PugCompilerModule,
       adapter: SendgridAdapterModule.registerAsync({
         inject: [emailConfig.KEY],
         useFactory: (email: ConfigType<typeof emailConfig>) => ({
@@ -20,7 +21,6 @@ import { PugTemplateAdapterModule } from "./email/pug-template/pug-template-adap
           emailFrom: email.emailFrom,
         }),
       }),
-      templateService: PugTemplateAdapterModule.register(),
       isGlobal: true,
     }),
     WelcomeModule,

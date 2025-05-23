@@ -27,15 +27,15 @@ export class EmailAbstractModule {
       global: isGlobal,
       providers: [
         {
-          provide: EmailService,
-          useFactory: (adapter: EmailService) => adapter,
-          inject: [EMAIL_PROVIDER],
-        },
-        {
           provide: EmailTemplateService,
           useFactory: (templateService: EmailTemplateService) =>
             templateService,
           inject: [EMAIL_TEMPLATE_SERVICE],
+        },
+        {
+          provide: EmailService,
+          useFactory: (adapter: EmailService) => adapter,
+          inject: [EMAIL_PROVIDER],
         },
       ],
       imports: [adapter, templateService],

@@ -1,8 +1,9 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { EmailService } from "../abstract/email.service";
 import {
-  SendEmailMultipleParams,
-  SendEmailParams,
+  MailingResponse,
+  SendRenderedEmailParams,
+  SendRenderedEmailMultipleParams,
 } from "../abstract/email.interface";
 import { SENDGRID_ADAPTER_PROVIDER_CONFIG } from "./sendgrid-adapter-config-provider.const";
 import { SendgridAdapterConfig } from "./sendgrid-adapter-config.interface";
@@ -17,7 +18,7 @@ export class SendgridAdapterService extends EmailService {
   constructor(
     @Inject(SENDGRID_ADAPTER_PROVIDER_CONFIG)
     config: SendgridAdapterConfig,
-    templateService: EmailTemplateService,
+    protected readonly templateService: EmailTemplateService,
   ) {
     super(templateService);
     this.emailFrom = config.emailFrom;
@@ -27,7 +28,7 @@ export class SendgridAdapterService extends EmailService {
   private async sendHTML(
     to: string,
     html: string,
-    options: Pick<SendEmailParams, "from" | "subject">,
+    options: Pick<SendRenderedEmailParams, "from" | "subject">,
   ): Promise<ClientResponse> {
     options.from = options.from || this.emailFrom;
     options.subject = options.subject || "";
@@ -45,7 +46,7 @@ export class SendgridAdapterService extends EmailService {
     to: string,
     templateId: string,
     locals: Record<string, any>,
-    options: Pick<SendEmailParams, "from" | "subject">,
+    options: Pick<SendRenderedEmailParams, "from" | "subject">,
   ): Promise<ClientResponse> {
     options.from = options.from || this.emailFrom;
     options.subject = options.subject || "";
@@ -64,7 +65,7 @@ export class SendgridAdapterService extends EmailService {
     to: string[],
     templateId: string,
     locals: Record<string, any>,
-    options: Pick<SendEmailParams, "from" | "subject">,
+    options: Pick<SendRenderedEmailParams, "from" | "subject">,
   ): Promise<ClientResponse> {
     options.from = options.from || this.emailFrom;
     options.subject = options.subject || "";
@@ -82,7 +83,7 @@ export class SendgridAdapterService extends EmailService {
   private async sendMultipleHTML(
     to: string[],
     html: string,
-    options: Pick<SendEmailParams, "from" | "subject">,
+    options: Pick<SendRenderedEmailParams, "from" | "subject">,
   ): Promise<ClientResponse> {
     options.from = options.from || this.emailFrom;
     options.subject = options.subject || "";
@@ -96,24 +97,31 @@ export class SendgridAdapterService extends EmailService {
       .then((resp) => resp[0]);
   }
 
-  async sendEmail(params: SendEmailParams): Promise<ClientResponse> {
+  async sendEmail(params: SendRenderedEmailParams): Promise<MailingResponse> {
     try {
-      if (params.template.templateId) {
-        return this.sendTemplate(
+      let response: ClientResponse;
+      if (params.content.html) {
+        response = await this.sendHTML(params.to, params.content.html, {
+          from: params.from,
+          subject: params.subject,
+        });
+      } else {
+        response = await this.sendTemplate(
           params.to,
-          params.template.templateId,
-          params.template.params,
+          params.content.templateId,
+          params.content.params,
           {
             from: params.from,
             subject: params.subject,
           },
         );
       }
-      const html = this.render(params.template.name, params.template.params);
-      return this.sendHTML(params.to, html, {
-        from: params.from,
-        subject: params.subject,
-      });
+
+      return {
+        statusCode: response.statusCode,
+        body: response.body,
+        headers: response.headers as Record<string, string>,
+      };
     } catch (error) {
       // TODO: Integrate log provider
       console.log(`Failed to send email:`, `Error: ${error}`);
@@ -121,26 +129,29 @@ export class SendgridAdapterService extends EmailService {
     }
   }
 
-  async sendMultipleEmails(
-    params: SendEmailMultipleParams,
-  ): Promise<ClientResponse> {
+  async sendEmailMultiple(
+    params: SendRenderedEmailMultipleParams,
+  ): Promise<MailingResponse> {
     try {
-      if (params.template.templateId) {
-        return this.sendMultipleTemplate(
+      let response: ClientResponse;
+      if (params.content.html) {
+        response = await this.sendMultipleHTML(params.to, params.content.html, {
+          from: params.from,
+          subject: params.subject,
+        });
+      } else {
+        response = await this.sendMultipleTemplate(
           params.to,
-          params.template.templateId,
-          params.template.params,
+          params.content.templateId,
+          params.content.params,
           {
             from: params.from,
             subject: params.subject,
           },
         );
       }
-      const html = this.render(params.template.name, params.template.params);
-      return this.sendMultipleHTML(params.to, html, {
-        from: params.from,
-        subject: params.subject,
-      });
+
+      return response;
     } catch (error) {
       // TODO: Integrate log provider
       console.log(`Failed to send multiple emails:`, `Error: ${error}`);

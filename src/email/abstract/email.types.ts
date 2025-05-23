@@ -1,4 +1,7 @@
-import { SendEmailParams } from "../abstract/email.interface";
+import {
+  SendRenderedEmailParams,
+  RenderedEmailContent,
+} from "../abstract/email.interface";
 
 /**
  * Type helper to create a type-safe email configuration.
@@ -14,23 +17,15 @@ export type EmailConfig<
 };
 
 /**
- * Type helper to create a type-safe email params for a specific template.
+ * Type helper to create a type-safe email sending params with rendered content.
  * @typeParam C - The email configuration type
- * @typeParam T - The specific template name from the config
  */
-export type TemplateEmailParams<
-  C extends EmailConfig<any, any>,
-  T extends C["templates"][keyof C["templates"]],
-> = Omit<SendEmailParams, "template"> & {
-  template: {
-    name: T;
-    params: C["params"][T];
-  };
+export type TemplateSendParams = Omit<SendRenderedEmailParams, "content"> & {
+  content: RenderedEmailContent;
 };
 
 /**
- * Type helper to create a type-safe email params for any template in the configuration.
+ * Type helper to create a type-safe email sending params for any template in the configuration.
  * @typeParam C - The email configuration type
  */
-export type ConfiguredEmailParams<C extends EmailConfig<any, any>> =
-  TemplateEmailParams<C, C["templates"][keyof C["templates"]]>;
+export type ConfiguredSendParams = TemplateSendParams;

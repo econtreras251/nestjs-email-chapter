@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { EmailService } from "../email/abstract/email.service";
-import { TEMPLATE_SUBJECTS, TEMPLATES } from "src/templates";
-import { createEmail } from "src/email/utils/create-email.helper";
+import { TEMPLATE_SUBJECTS, TemplateParamsMap, TEMPLATES } from "src/templates";
 
 interface WelcomeEmailParams {
   name: string;
@@ -9,8 +8,8 @@ interface WelcomeEmailParams {
 }
 
 interface ConfirmationEmailParams {
-  email: string;
   name: string;
+  email: string;
   verificationUrl: string;
 }
 
@@ -19,18 +18,21 @@ export class WelcomeService {
   constructor(private readonly emailService: EmailService) {}
 
   async sendWelcomeEmail(serviceParams: WelcomeEmailParams) {
-    const emailParams = createEmail(
-      TEMPLATES.WELCOME,
-      {
+    const rendered = await this.emailService.renderTemplate<
+      typeof TEMPLATES,
+      TemplateParamsMap
+    >({
+      name: TEMPLATES.WELCOME,
+      params: {
         name: serviceParams.name,
       },
-      {
-        to: serviceParams.email,
-        subject: TEMPLATE_SUBJECTS[TEMPLATES.WELCOME],
-      },
-    );
+    });
 
-    return this.emailService.sendEmail(emailParams);
+    return this.emailService.sendEmail({
+      to: serviceParams.email,
+      subject: TEMPLATE_SUBJECTS[TEMPLATES.WELCOME],
+      content: rendered,
+    });
   }
 
   async sendTemplateEmail(
@@ -40,8 +42,8 @@ export class WelcomeService {
     return this.emailService.sendEmail({
       to: serviceParams.email,
       subject: TEMPLATE_SUBJECTS[TEMPLATES.VERIFICATION],
-      template: {
-        name: "template",
+      content: {
+        html: "",
         templateId,
         params: serviceParams,
       },

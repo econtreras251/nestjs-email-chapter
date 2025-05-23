@@ -25,13 +25,63 @@ export interface BaseEmailMultipleParams {
 }
 
 /**
- * Type for email headers with common header fields
+ * Represents a rendered email content with its metadata
  */
-export type EmailHeaders = {
-  "Content-Type"?: string;
-  "X-Mailer"?: string;
-  [key: string]: string | undefined;
-};
+export interface RenderedEmailContent {
+  /** The rendered HTML content of the email */
+  html: string;
+  /** The template ID to use for the email */
+  templateId?: string;
+  /** The parameters to be used in the template */
+  params?: Record<string, any>;
+}
+
+type TemplateNameToParams<
+  Templates extends Record<string, string>,
+  Params extends Record<Templates[keyof Templates], any>,
+> = {
+  [K in Templates[keyof Templates]]: {
+    name: K;
+    templateId?: string;
+    params: Params[K];
+  };
+}[Templates[keyof Templates]];
+
+export type RenderEmailTemplateParams<
+  Templates extends Record<string, string>,
+  Params extends Record<Templates[keyof Templates], any>,
+> = TemplateNameToParams<Templates, Params>;
+
+// /**
+//  * Parameters for rendering an email template
+//  */
+// export interface RenderEmailTemplateParams<
+//   Templates extends Record<string, string>,
+//   Params extends Record<Templates[keyof Templates], any>,
+//   /** Name of the email template to use */
+//   name: Templates[keyof Templates];
+//   /** ID of the email template to use */
+//   templateId?: string;
+//   /** Parameters to be used in the template */
+//   params: Params[Templates[keyof Templates]];
+// }
+
+/**
+ * Parameters for sending an email with pre-rendered content
+ */
+export interface SendRenderedEmailParams extends BaseEmailParams {
+  /** The rendered email content */
+  content: RenderedEmailContent;
+}
+
+/**
+ * Parameters for sending multiple emails with pre-rendered content
+ */
+export interface SendRenderedEmailMultipleParams
+  extends BaseEmailMultipleParams {
+  /** The rendered email content */
+  content: RenderedEmailContent;
+}
 
 /**
  * Represents the response returned after sending an email.
@@ -43,57 +93,5 @@ export interface MailingResponse<TPayload = object> {
   /** Response body containing the result of the email operation */
   body: TPayload;
   /** Response headers */
-  headers: EmailHeaders;
-}
-
-/**
- * Core interface for sending an email.
- * The template and params types are defined at the module level.
- */
-export interface SendEmailParams extends BaseEmailParams {
-  template: {
-    /** Name of the email template to use */
-    name: string;
-    /** ID of the email template to use */
-    templateId?: string;
-    /** Parameters to be used in the template */
-    params: Record<string, any>;
-  };
-}
-
-/**
- * Core interface for sending multiple emails.
- * The template and params types are defined at the module level.
- */
-export interface SendEmailMultipleParams extends BaseEmailMultipleParams {
-  template: {
-    /** Name of the email template to use */
-    name: string;
-    /** ID of the email template to use */
-    templateId?: string;
-    /** Parameters to be used in the template */
-    params: Record<string, any>;
-  };
-}
-
-/**
- * Core interface for the email service.
- * Provides methods for sending single and multiple emails.
- */
-export interface EmailService {
-  /**
-   * Sends a single email using the provided parameters
-   * @param params - The parameters for sending the email
-   * @returns Promise resolving to the mailing response
-   */
-  sendEmail(params: SendEmailParams): Promise<MailingResponse>;
-
-  /**
-   * Sends multiple emails using the provided parameters
-   * @param params - The parameters for sending multiple emails
-   * @returns Promise resolving to an array of mailing responses
-   */
-  sendEmailMultiple(
-    params: SendEmailMultipleParams,
-  ): Promise<MailingResponse[]>;
+  headers: Record<string, string>;
 }

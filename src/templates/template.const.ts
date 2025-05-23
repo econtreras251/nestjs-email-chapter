@@ -9,8 +9,8 @@ export const TEMPLATES = {
 } as const;
 
 export const TEMPLATE_PATHS = {
-  [TEMPLATES.WELCOME]: "templates/welcome.pug",
-  [TEMPLATES.VERIFICATION]: "src/templates/verification.pug",
+  [TEMPLATES.WELCOME]: "src/templates/onboarding/welcome.pug",
+  [TEMPLATES.VERIFICATION]: "src/templates/auth/verification.pug",
 } as const;
 
 export const TEMPLATE_SUBJECTS = {
